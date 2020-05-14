@@ -1,0 +1,19 @@
+SELECT case when getnamakab(no_kab,no_prop) is not null 
+    then trim(to_char(no_prop,'00'))||trim(to_char(no_kab,'00')) end kode_wil
+    ,case when
+     getnamakab(no_kab,no_prop) is null then
+     getnamakab(no_kab,no_prop) else 
+     getnamakab(no_kab,no_prop) end Nama_wil
+    ,sum(lk)lk,round(sum(lk)*100/(pd),2)psn_lk
+    ,sum(pr)pr,round(sum(pr)*100/(pd),2)psn_pr    
+    ,sum(jmljk)jml,round(sum(jmljk)*100/(pd),2)psn_jml
+	       ,to_char(round(sum(lk)/sum(pr)*100))rasio
+    from
+    (SELECT no_kab,no_prop
+    ,case when jenis_klmin in(1) then 1 end LK
+    ,case when jenis_klmin in(2) then 1 end PR
+    ,(select count(*) from BIODATA_WNI_201901) pd
+    ,case when jenis_klmin in(1,2) then 1 end jmljk           
+FROM BIODATA_WNI_201901)
+GROUP BY  no_prop,pd, CUBE (NO_KAB)
+ORDER BY  trim(to_char(no_prop,'00'))||trim(to_char(no_kab,'00'));
